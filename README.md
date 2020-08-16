@@ -4,10 +4,10 @@
 
 #### `Install`
 ``` bash
-npm install --save git+https://git@github.com/anzerr/<?>.git
+npm install --save git+https://git@github.com/anzerr/cjson.cli.git
 ```
 
 ### `Example`
 ``` javascript
-console.log('usage');
+cjson
 ```

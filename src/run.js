@@ -79,8 +79,8 @@ class Runner {
 			}
 
 			return Promise.all([
-				fs.writeFile(filePath, JSON.stringify(json, null, '\t')),
-				fs.writeFile(outPath, YAML.stringify(json))
+				fs.writeFile(this.filePath, JSON.stringify(json, null, '\t')),
+				fs.writeFile(this.outPath, YAML.stringify(json))
 			]);
 		}).then(() => {
 			this.log('done');

@@ -18,6 +18,7 @@ const {Cli, Map} = require('cli.util'),
 				.argument(),
 			new Map('dry')
 				.alias(['d', 'D']),
+			new Map('format'),
 			new Map('verbose')
 				.alias(['v', 'V'])
 		]);
@@ -27,6 +28,7 @@ const {Cli, Map} = require('cli.util'),
 		file: cli.get('file') || 'docker-compose.json',
 		out: cli.get('out') || 'docker-compose.yml',
 		dry: cli.has('dry'),
+		format: cli.has('format'),
 		verbose: cli.has('verbose')
 	});
 })();

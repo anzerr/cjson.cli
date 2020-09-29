@@ -78,7 +78,7 @@ class Runner {
 				return console.log(YAML.stringify(json));
 			}
 
-			const {ext} = path.parse(file);
+			const {ext} = path.parse(this.filePath);
 			return Promise.all([
 				(this.options.format && ext === '.json') ? fs.writeFile(this.filePath, JSON.stringify(json, null, '\t')) : Promise.resolve(),
 				fs.writeFile(this.outPath, YAML.stringify(json))

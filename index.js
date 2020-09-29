@@ -7,21 +7,21 @@ const {Cli, Map} = require('cli.util'),
 
 (() => {
 	let cli = new Cli(process.argv, [
-			new Map('cwd')
-				.alias(['c', 'C'])
-				.argument(),
-			new Map('file')
-				.alias(['f', 'F'])
-				.argument(),
-			new Map('out')
-				.alias(['o', 'O'])
-				.argument(),
-			new Map('dry')
-				.alias(['d', 'D']),
-			new Map('format'),
-			new Map('verbose')
-				.alias(['v', 'V'])
-		]);
+		new Map('cwd')
+			.alias(['c', 'C'])
+			.argument(),
+		new Map('file')
+			.alias(['f', 'F'])
+			.argument(),
+		new Map('out')
+			.alias(['o', 'O'])
+			.argument(),
+		new Map('dry')
+			.alias(['d', 'D']),
+		new Map('format'),
+		new Map('verbose')
+			.alias(['v', 'V'])
+	]);
 
 	run({
 		cwd: cli.get('cwd') || './',

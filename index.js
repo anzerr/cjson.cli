@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+require('dotenv').config();
+
 const {Cli, Map} = require('cli.util'),
 	run = require('./src/run');
 

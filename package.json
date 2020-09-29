@@ -27,6 +27,7 @@
 	},
 	"dependencies": {
 		"cli.util": "git+https://github.com/anzerr/cli.util.git",
+		"dotenv": "git+https://git@github.com/anzerr/dotenv.git",
 		"fs.promisify": "git+https://github.com/anzerr/fs.promisify.git",
 		"json.to.yaml": "git+https://github.com/anzerr/json.to.yaml.git"
 	},

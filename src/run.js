@@ -1,59 +1,97 @@
 
 const fs = require('fs.promisify'),
 	YAML = require('json.to.yaml'),
+	vm = require('vm'),
 	path = require('path');
 
-module.exports = (options) => {
-	const filePath = path.join(options.cwd, options.file),
-		outPath = path.join(options.cwd, options.out);
-	if (options.verbose) {
-		console.log(`format "${filePath}" to "${outPath}"`);
+class Runner {
+
+	constructor(options) {
+		this.options = options;
+		this.filePath = path.join(options.cwd, options.file);
+		this.outPath = path.join(options.cwd, options.out);
 	}
-	return fs.readFile(filePath).then((res) => {
-		let j = JSON.parse(res.toString()), json = {
-			version: j.version,
-			services: {},
-			networks: j.networks,
-			volumes: j.volumes
-		};
 
-		let key = (() => {
-			let k = {}, o = [];
-			for (let i in j.services) {
-				for (let x in j.services[i]) {
-					k[x] = true;
+	log(...arg) {
+		if (this.options.verbose) {
+			console.log(...arg);
+		}
+	}
+
+	load(file) {
+		const {ext} = path.parse(file);
+		if (ext === '.json') {
+			return fs.readFile(file).then((res) => {
+				return JSON.parse(res.toString());
+			});
+		}
+		if (ext === '.js') {
+			return fs.readFile(file).then((res) => {
+				const sandbox = {
+					module: {},
+					process: {env: process.env}
+				};
+				vm.createContext(sandbox);
+				vm.runInContext(res.toString(), sandbox);
+				return (sandbox.module.exports || {});
+			});
+		}
+		throw new Error(`"${ext}" is not supported`);
+	}
+
+	get() {
+		this.log(`format "${this.filePath}" to "${this.outPath}"`);
+		return this.load(this.filePath).then((j) => {
+			const json = {
+				version: j.version,
+				services: {},
+				networks: j.networks,
+				volumes: j.volumes
+			};
+
+			const key = (() => {
+				let k = {}, o = [];
+				for (let i in j.services) {
+					for (let x in j.services[i]) {
+						k[x] = true;
+					}
 				}
-			}
-			for (let i in k) {
-				o.push(i);
-			}
-			return o.sort();
-		})();
-
-		for (let i in j.services) {
-			let s = {};
-			for (let x in key) {
-				if (j.services[i][key[x]] !== undefined) {
-					s[key[x]] = j.services[i][key[x]];
+				for (let i in k) {
+					o.push(i);
 				}
+				return o.sort();
+			})();
+
+			this.log('services found', key);
+
+			for (const i in j.services) {
+				const s = {};
+				for (let x in key) {
+					if (j.services[i][key[x]] !== undefined) {
+						s[key[x]] = j.services[i][key[x]];
+					}
+				}
+				json.services[i] = s;
 			}
-			json.services[i] = s;
-		}
 
-		if (options.dry) {
-			return console.log(YAML.stringify(json));
-		}
+			if (this.options.dry) {
+				return console.log(YAML.stringify(json));
+			}
 
-		return Promise.all([
-			fs.writeFile(filePath, JSON.stringify(json, null, '\t')),
-			fs.writeFile(outPath, YAML.stringify(json))
-		]);
-	}).then(() => {
-		if (options.verbose) {
-			console.log('done');
-		}
-	}).catch((e) => {
-		console.log(options.verbose ? e : e.toString());
-	});
+			return Promise.all([
+				fs.writeFile(filePath, JSON.stringify(json, null, '\t')),
+				fs.writeFile(outPath, YAML.stringify(json))
+			]);
+		}).then(() => {
+			this.log('done');
+		}).catch((e) => {
+			console.log(this.options.verbose ? e : e.toString());
+		});
+	}
+
+}
+
+module.exports = (options) => {
+	return (new Runner(options)).get();
 };
 
